@@ -3,6 +3,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from tqdm import tqdm
+from torchsummary import summary
+from utils import GetCorrectPredCount
+import matplotlib.pyplot as plt
+
+
 
 train_losses = []
 test_losses = []
@@ -31,13 +36,7 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
-
     
-
-
-def GetCorrectPredCount(pPrediction, pLabels):
-    return pPrediction.argmax(dim=1).eq(pLabels).sum().item()
-
 def train(model, device, train_loader, optimizer, criterion):
     model.train()
     pbar = tqdm(train_loader)
@@ -80,7 +79,7 @@ def test(model, device, test_loader, criterion):
             data, target = data.to(device), target.to(device)
 
             output = model(data)
-            test_loss += criterion(output, target, reduction='sum').item()  # sum up batch loss
+            test_loss += criterion(output, target).item()  # sum up batch loss
 
             correct += GetCorrectPredCount(output, target)
 
@@ -92,4 +91,25 @@ def test(model, device, test_loader, criterion):
     print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
+    
+def model_summary(model,input_size):
+    
+    summary(model,input_size)
+
+def draw_graphs():
+    fig, axs = plt.subplots(2,2,figsize=(15,10))
+    axs[0, 0].plot(train_losses)
+    axs[0, 0].set_title("Training Loss")
+    axs[1, 0].plot(train_acc)
+    axs[1, 0].set_title("Training Accuracy")
+    axs[0, 1].plot(test_losses)
+    axs[0, 1].set_title("Test Loss")
+    axs[1, 1].plot(test_acc)
+    axs[1, 1].set_title("Test Accuracy")
+
+    
+
+
+
+
      
