@@ -37,38 +37,40 @@ class Net(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
     
-def train(model, device, train_loader, optimizer, criterion):
-    model.train()
-    pbar = tqdm(train_loader)
 
-    train_loss = 0
-    correct = 0
-    processed = 0
 
-    for batch_idx, (data, target) in enumerate(pbar):
-        data, target = data.to(device), target.to(device)
-        optimizer.zero_grad()
+def train(model, device, train_loader, optimizer,criterion):
+  model.train()
+  pbar = tqdm(train_loader)
 
-        # Predict
-        pred = model(data)
+  train_loss = 0
+  correct = 0
+  processed = 0
 
-        # Calculate loss
-        loss = criterion(pred, target)
-        train_loss+=loss.item()
+  for batch_idx, (data, target) in enumerate(pbar):
+    data, target = data.to(device), target.to(device)
+    optimizer.zero_grad()
 
-        # Backpropagation
-        loss.backward()
-        optimizer.step()
+    # Predict
+    pred = model(data)
 
-        correct += GetCorrectPredCount(pred, target)
-        processed += len(data)
+    # Calculate loss
+    loss = criterion(pred, target)
+    train_loss+=loss.item()
 
-        pbar.set_description(desc= f'Train: Loss={loss.item():0.4f} Batch_id={batch_idx} Accuracy={100*correct/processed:0.2f}')
+    # Backpropagation
+    loss.backward()
+    optimizer.step()
+    
+    correct += GetCorrectPredCount(pred, target)
+    processed += len(data)
 
-        train_acc.append(100*correct/processed)
-        train_losses.append(train_loss/len(train_loader))
+    pbar.set_description(desc= f'Train: Loss={loss.item():0.4f} Batch_id={batch_idx} Accuracy={100*correct/processed:0.2f}')
 
-def test(model, device, test_loader, criterion):
+  train_acc.append(100*correct/processed)
+  train_losses.append(train_loss/len(train_loader))
+
+def test(model, device, test_loader,criterion):
     model.eval()
 
     test_loss = 0
