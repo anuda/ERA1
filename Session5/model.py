@@ -2,8 +2,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torchvision import datasets, transforms
 from tqdm import tqdm
+
+train_losses = []
+test_losses = []
+train_acc = []
+test_acc = []
+
+test_incorrect_pred = {'images': [], 'ground_truths': [], 'predicted_vals': []}
 
 class Net(nn.Module):
     #This defines the structure of the NN.
@@ -13,7 +19,7 @@ class Net(nn.Module):
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3)
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3)
         self.conv4 = nn.Conv2d(128, 256, kernel_size=3)
-        self.fc1 = nn.Linear(2097152, 50)
+        self.fc1 = nn.Linear(4096, 50)
         self.fc2 = nn.Linear(50, 10)
 
     def forward(self, x):
@@ -21,9 +27,7 @@ class Net(nn.Module):
         x = F.relu(F.max_pool2d(self.conv2(x), 2)) 
         x = F.relu(self.conv3(x), 2)
         x = F.relu(F.max_pool2d(self.conv4(x), 2))
-        x = torch.flatten(x, 1)
-        print(x.size())
-        # x = x.view(-1, 320)
+        x = x.view(-1, 4096)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)

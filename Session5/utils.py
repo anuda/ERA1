@@ -18,11 +18,7 @@ test_transforms = transforms.Compose([
     transforms.Normalize((0.1407,), (0.4081,))
     ])
 
-def download_data():
-    train_data = datasets.MNIST('../data', train=True, download=True, transform=train_transforms)
-    test_data = datasets.MNIST('../data', train=False, download=True, transform=train_transforms)
-    
-    return(train_data, test_data)
+
 
 def plot_sample(data_loader,n):
     import matplotlib.pyplot as plt
@@ -32,7 +28,7 @@ def plot_sample(data_loader,n):
     fig = plt.figure()
 
     for i in range(n):
-        plt.subplot(3,round(n/3),i+1)
+        plt.subplot(round(n/3),3,i+1)
         plt.tight_layout()
         plt.imshow(batch_data[i].squeeze(0), cmap='gray')
         plt.title(batch_label[i].item())
